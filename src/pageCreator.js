@@ -25,20 +25,63 @@ let currentProject = inbox
 
 const addTaskForm = (taskItemInput,taskItemPrompt) => {
     taskItemInput.classList.toggle('active')
-    const taskData = document.createElement('input')
-    taskData.classList.add('add-task-input')
-    taskData.setAttribute('id', 'add-task-input')
-    taskData.setAttribute('type', 'text')
-    taskItemInput.appendChild(taskData)
+
+    const dataGroup = document.createElement('div')
+    dataGroup.classList.add('data-group')
+
+    const taskName = document.createElement('input')
+    taskName.classList.add('add-task-name')
+    taskName.setAttribute('id', 'add-task-name')
+    taskName.setAttribute('type', 'text')
+
+
+    dataGroup.appendChild(taskName)
+    //instead of this
+    //taskItemInput.appendChild(taskName)
+
+    const taskPriority = document.createElement('select')
+    taskPriority.classList.add('add-task-priority')
+    taskPriority.setAttribute('id', 'add-task-priority')
+    taskPriority.setAttribute('type', 'select')
+
+    const option1 = document.createElement('option');
+    option1.value = 'low';
+    option1.text = 'Low';
+
+    const option2 = document.createElement('option');
+    option2.value = 'medium';
+    option2.text = 'Medium';
+
+    const option3 = document.createElement('option');
+    option3.value = 'high';
+    option3.text = 'High';
+
+    taskPriority.appendChild(option1)
+    taskPriority.appendChild(option2)
+    taskPriority.appendChild(option3)
+
+    dataGroup.appendChild(taskPriority)
+    //instead of this
+    //taskItemInput.appendChild(taskPriority)
 
     const buttonContainer = document.createElement('div')
     buttonContainer.classList.add('button-container')
+
+    const taskDate = document.createElement('input')
+    taskDate.setAttribute('type', 'date')
+
+    dataGroup.appendChild(taskDate)
 
     const taskDataSubmit = document.createElement('button')
     taskDataSubmit.classList.add('add-task-submit')
     taskDataSubmit.setAttribute('id', 'add-task-submit')
     taskDataSubmit.textContent = 'Add'
     taskDataSubmit.addEventListener('click', () => {
+        const _taskName = taskName.value
+        if(_taskName === '') return
+        if(currentProject.getTask(_taskName)) return
+        currentProject.addTask(new Task(_taskName, 'Test Description', '', 3))
+        createContent()
         //get taskData.value, priority.value etc.
         //push new task to currentProject
     })
@@ -51,7 +94,7 @@ const addTaskForm = (taskItemInput,taskItemPrompt) => {
         taskItemInput.classList.toggle('active')
         taskItemPrompt.classList.toggle('active')
     })
-
+    taskItemInput.appendChild(dataGroup)
     buttonContainer.appendChild(taskDataSubmit)
     buttonContainer.appendChild(taskDataCancel)
     taskItemInput.appendChild(buttonContainer)
@@ -61,6 +104,7 @@ const addTaskItem = () => {
     const taskItem = document.createElement('div')
     const taskItemPrompt = document.createElement('div')
     taskItemPrompt.classList.add('task-item-prompt')
+
     const taskItemInput = document.createElement('div')
     taskItemInput.classList.add('task-item-input')
     
@@ -101,20 +145,25 @@ const taskList = () =>{
             const taskItem = document.createElement('div');
             taskItem.classList.add('task-item');
 
+            const taskName = document.createElement('p')
+            taskName.textContent = task.getName()
+
             const buttonNameGroup = document.createElement('div')
             buttonNameGroup.classList.add('button-name-group')
-
             const completedButton = document.createElement('button')
             completedButton.classList.add('completed-button')
             completedButton.setAttribute('id', 'completed-button')
             const completedIcon = document.createElement('i');
             completedIcon.classList.add('fa-regular', 'fa-circle-check');
             completedIcon.style.color = '#000000';
+            completedButton.addEventListener("click", () => {
+                currentProject.removeTask(task.getName())
+                createContent()
+            })
             completedButton.appendChild(completedIcon)
             buttonNameGroup.appendChild(completedButton)
 
-            const taskName = document.createElement('p')
-            taskName.textContent = task.getName()
+            
             buttonNameGroup.appendChild(taskName)
             
             const taskDate = document.createElement('input')
@@ -124,8 +173,9 @@ const taskList = () =>{
             taskItem.appendChild(buttonNameGroup)
             taskItem.appendChild(taskDate)
             taskItemsList.appendChild(taskItem)
-            taskItemsList.appendChild(addTaskItem())
+            
         });
+        taskItemsList.appendChild(addTaskItem())
         return taskItemsList
     }
 }
