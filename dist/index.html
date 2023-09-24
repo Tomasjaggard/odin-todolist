@@ -4,17 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://kit.fontawesome.com/bd9757e4e7.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <header>
-        <div class="logo"></div>
-        <nav>
-            <div class="task-groups"></div><!-- append every new group to this div -->
-        </nav>
-    </header>
-    <main>
-        <div class="content"></div><!-- append every new page to this div-->
-    </main>
+    <div class="layout">
+        <header>
+            <div class="container">
+                <div class="logo">TodoIt</div>
+                <nav>
+                    <div class="project-list" id="project-list"></div><!-- append every new group to this div -->
+                </nav>
+            </div>
+        </header>
+        <main>
+            <div class="container">
+                <div class="content" id="content"></div><!-- append every new page to this div-->
+            </div>
+        </main>
+    </div>
+    <footer><p>Copyright &copy; Tomas Jaggard</p></footer>
     <script src="main.js"></script>
 </body>
 </html>
