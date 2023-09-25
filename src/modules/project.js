@@ -18,11 +18,11 @@ export default class Project{
     }
 
     removeTask(taskName){
-        this.tasks = this.tasks.filter((task) => task.name !== taskName)
+        this.tasks = this.tasks.filter((task) => task.title !== taskName)
     }
 
     getTask(taskName){
-        return this.tasks.some((task) => task.getName === taskName)
+        return this.tasks.some((task) => task.getName() === taskName)
     }
 
     getTasksToday(){
