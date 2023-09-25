@@ -3,7 +3,7 @@ import Task from "./modules/task"
 import Todolist from "./modules/todolist"
 
 const todoList = new Todolist
-const inbox = todoList.getProjectName('Inbox')
+const inbox = todoList.getProject('Inbox')
 let currentProject = inbox
 
 //need inbox, today, this week
@@ -77,8 +77,12 @@ const addTaskForm = (taskItemInput,taskItemPrompt) => {
         if(currentProject.getTask(_taskName)) return
 
         let _taskDate = taskDate.value
-        if(!_taskDate) _taskDate = 'None'
-        currentProject.addTask(new Task(_taskName, 'Test Description', _taskDate, 3))
+        if(!_taskDate){
+            _taskDate = 'None'
+        } else{
+            _taskDate = new Date(taskDate.valueAsDate)
+        }
+        currentProject.addTask(new Task(_taskName, 'Test Description', _taskDate, taskPriority.value))
         createContent()
     })
 
@@ -155,16 +159,16 @@ const createTask = (task) => {
     
     buttonNameGroup.appendChild(taskName)
     
-
     taskItem.appendChild(buttonNameGroup)
     if(task.getDate() == "None"){
         const taskDate = document.createElement('input')
         taskDate.setAttribute('type', 'date')
         taskItem.appendChild(taskDate)
         taskDate.addEventListener('blur', () => {
-            console.log(taskDate.value)
-            task.setDate(taskDate.value)
+            task.setDate(new Date(taskDate.valueAsDate))
             taskItem.replaceChild(createDate(task), taskDate)
+            task.getDate()
+            createContent()
         })
     } else {
         taskItem.appendChild(createDate(task))
@@ -174,7 +178,6 @@ const createTask = (task) => {
 
 const createDate = (task) => {
     const taskDateDisplay = document.createElement('p')
-    console.log(typeof(task.dueDate))
     taskDateDisplay.textContent = task.getDateFormatted()
     return taskDateDisplay
 }
@@ -194,10 +197,35 @@ const taskList = () =>{
     }
 }
 
+const projectSorter = () => {
+    const todayProject = todoList.getProject('Today')
+    const thisWeekProject = todoList.getProject('This week')
+    todoList.projects.forEach(project => {
+        console.log(project.getName())
+        console.log(project.tasks)
+        const thisDayTasks = project.getTasksToday()
+        const thisWeekTasks = project.getTasksThisWeek()
+        project.tasks.forEach(task => {
+            console.log(task)
+            if(thisDayTasks.includes(task) && thisWeekTasks.includes(task)){
+                thisDayTasks.forEach(item => {
+                    project.removeTask(item.getName())
+                    todayProject.addTask(item)
+                });
+            } else if (thisWeekTasks.includes(task)){
+                thisWeekTasks.forEach(item => {
+                    project.removeTask(item.getName())
+                    thisWeekProject.addTask(item)
+                });
+            }
+        });
+    })
+}
+
+
 const createProjectList = () =>{
     const projectList = document.getElementById('project-list')
     todoList.projects.forEach(project => {
-
         const projectItem = document.createElement('button')
         projectItem.classList.add('project-item');
         projectItem.addEventListener("click", () => {
@@ -214,6 +242,7 @@ const createProjectList = () =>{
 
 
 const createContent = () =>{
+    projectSorter()
     const content = document.getElementById('content')
     content.innerHTML = ''
     const title = document.createElement('h2')
