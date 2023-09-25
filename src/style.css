@@ -35,8 +35,7 @@ header{
     width: 100%;
     /* min-height: 100vh; */
     display: flex;
-    flex-direction: column;
-    
+    flex-direction: column; 
 }
 
 .logo{
@@ -50,8 +49,6 @@ main{
     grid-column: 2;
     background-color: var(--background-color);
     width: 100%;
-    /* min-height: 100vh; */
-    
 }
 
 .project-list{
@@ -63,6 +60,7 @@ main{
 .project-list .project-item{
     padding: 5px;
     border: none;
+    border-radius: 8px;
     background-color: var(--secondary-color);
 }
 
@@ -74,8 +72,6 @@ main{
 
 .content{
     padding: 0 150px 0 150px;
-    /* display: flex;
-    flex-direction: column; */
 }
 
 .content-title{
@@ -109,8 +105,6 @@ main{
     border-radius: 8px;
 }
 
-
-
 .task-item-prompt.active{
     display: none;
 }
@@ -136,10 +130,22 @@ main{
     flex-direction: column;
 }
 
-.task-item-input .add-task-input{
-    width: 95%;
+.task-item-input .add-task-name{
+    width: 50%;
     height: 100%;
-    padding: 7.5px 5px 7.5px 5px;;
+    padding: 7.5px 5px 7.5px 5px;
+    border-radius: 8px;
+    border: none;
+}
+
+.add-task-name:focus,.add-task-priority:focus,.add-task-date:focus,.add-task-submit:focus, .add-task-cancel:focus{
+    outline: none;
+}
+
+.task-item-input .add-task-priority{
+    width: 20%;
+    border: none;
+    border-radius: 8px;
 }
 
 .task-item-input .button-container{
@@ -147,6 +153,11 @@ main{
     display: flex;
     gap: 10px;
     width: 100%;
+}
+
+.task-item-input .data-group{
+    display: flex;
+    gap: 10px;
 }
 
 .add-task-submit, .add-task-cancel{
