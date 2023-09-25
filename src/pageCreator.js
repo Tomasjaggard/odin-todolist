@@ -4,7 +4,6 @@ import Todolist from "./modules/todolist"
 
 const todoList = new Todolist
 const inbox = todoList.getProjectName('Inbox')
-inbox.addTask(new Task('Test1', 'Test Description', '', 3))
 let currentProject = inbox
 
 //need inbox, today, this week
@@ -34,10 +33,7 @@ const addTaskForm = (taskItemInput,taskItemPrompt) => {
     taskName.setAttribute('id', 'add-task-name')
     taskName.setAttribute('type', 'text')
 
-
     dataGroup.appendChild(taskName)
-    //instead of this
-    //taskItemInput.appendChild(taskName)
 
     const taskPriority = document.createElement('select')
     taskPriority.classList.add('add-task-priority')
@@ -61,13 +57,12 @@ const addTaskForm = (taskItemInput,taskItemPrompt) => {
     taskPriority.appendChild(option3)
 
     dataGroup.appendChild(taskPriority)
-    //instead of this
-    //taskItemInput.appendChild(taskPriority)
 
     const buttonContainer = document.createElement('div')
     buttonContainer.classList.add('button-container')
 
     const taskDate = document.createElement('input')
+    taskDate.classList.add('add-task-date')
     taskDate.setAttribute('type', 'date')
 
     dataGroup.appendChild(taskDate)
@@ -80,10 +75,11 @@ const addTaskForm = (taskItemInput,taskItemPrompt) => {
         const _taskName = taskName.value
         if(_taskName === '') return
         if(currentProject.getTask(_taskName)) return
-        currentProject.addTask(new Task(_taskName, 'Test Description', '', 3))
+
+        let _taskDate = taskDate.value
+        if(!_taskDate) _taskDate = 'None'
+        currentProject.addTask(new Task(_taskName, 'Test Description', _taskDate, 3))
         createContent()
-        //get taskData.value, priority.value etc.
-        //push new task to currentProject
     })
 
     const taskDataCancel = document.createElement('button')
@@ -135,6 +131,54 @@ const addTaskItem = () => {
     return taskItem
 }
 
+const createTask = (task) => {
+    const taskItem = document.createElement('div');
+    taskItem.classList.add('task-item');
+
+    const taskName = document.createElement('p')
+    taskName.textContent = task.getName()
+
+    const buttonNameGroup = document.createElement('div')
+    buttonNameGroup.classList.add('button-name-group')
+    const completedButton = document.createElement('button')
+    completedButton.classList.add('completed-button')
+    completedButton.setAttribute('id', 'completed-button')
+    const completedIcon = document.createElement('i');
+    completedIcon.classList.add('fa-regular', 'fa-circle-check');
+    completedIcon.style.color = '#000000';
+    completedButton.addEventListener("click", () => {
+        currentProject.removeTask(task.getName())
+        createContent()
+    })
+    completedButton.appendChild(completedIcon)
+    buttonNameGroup.appendChild(completedButton)
+    
+    buttonNameGroup.appendChild(taskName)
+    
+
+    taskItem.appendChild(buttonNameGroup)
+    if(task.getDate() == "None"){
+        const taskDate = document.createElement('input')
+        taskDate.setAttribute('type', 'date')
+        taskItem.appendChild(taskDate)
+        taskDate.addEventListener('blur', () => {
+            console.log(taskDate.value)
+            task.setDate(taskDate.value)
+            taskItem.replaceChild(createDate(task), taskDate)
+        })
+    } else {
+        taskItem.appendChild(createDate(task))
+    }
+    return taskItem
+}
+
+const createDate = (task) => {
+    const taskDateDisplay = document.createElement('p')
+    console.log(typeof(task.dueDate))
+    taskDateDisplay.textContent = task.getDateFormatted()
+    return taskDateDisplay
+}
+
 const taskList = () =>{
     if (currentProject.tasks.length === 0){
         return addTaskItem();
@@ -142,38 +186,8 @@ const taskList = () =>{
         const taskItemsList = document.createElement('div')
         taskItemsList.classList.add('task-items-list')
         currentProject.tasks.forEach(task => {
-            const taskItem = document.createElement('div');
-            taskItem.classList.add('task-item');
-
-            const taskName = document.createElement('p')
-            taskName.textContent = task.getName()
-
-            const buttonNameGroup = document.createElement('div')
-            buttonNameGroup.classList.add('button-name-group')
-            const completedButton = document.createElement('button')
-            completedButton.classList.add('completed-button')
-            completedButton.setAttribute('id', 'completed-button')
-            const completedIcon = document.createElement('i');
-            completedIcon.classList.add('fa-regular', 'fa-circle-check');
-            completedIcon.style.color = '#000000';
-            completedButton.addEventListener("click", () => {
-                currentProject.removeTask(task.getName())
-                createContent()
-            })
-            completedButton.appendChild(completedIcon)
-            buttonNameGroup.appendChild(completedButton)
-
-            
-            buttonNameGroup.appendChild(taskName)
-            
-            const taskDate = document.createElement('input')
-            taskDate.setAttribute('type', 'date')
-            //needs setAttribute('id', 'date') but not sure how this would conflict with other tasks
-            
-            taskItem.appendChild(buttonNameGroup)
-            taskItem.appendChild(taskDate)
+            const taskItem = createTask(task)
             taskItemsList.appendChild(taskItem)
-            
         });
         taskItemsList.appendChild(addTaskItem())
         return taskItemsList
@@ -200,7 +214,6 @@ const createProjectList = () =>{
 
 
 const createContent = () =>{
-    console.log(currentProject.getName())
     const content = document.getElementById('content')
     content.innerHTML = ''
     const title = document.createElement('h2')
