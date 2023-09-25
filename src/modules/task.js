@@ -1,5 +1,5 @@
 export default class Task{
-    constructor(title, description, dueDate = 'None', priority = 1){
+    constructor(title, description, dueDate = 'None', priority = 'low'){
         this.title = title
         this.description = description
         this.dueDate = dueDate
@@ -15,7 +15,7 @@ export default class Task{
     }
 
     setDate(date){
-        this.dueDate = this.date
+        this.dueDate = date
     }
 
     getDate(){
@@ -23,9 +23,10 @@ export default class Task{
     }
 
     getDateFormatted() {
-        const day = this.dueDate.split('/')[0]
-        const month = this.dueDate.split('/')[1]
-        const year = this.dueDate.split('/')[2]
-        return `${month}/${day}/${year}`
+        const dateSplit = this.dueDate.split('-')
+        const day = dateSplit[2]
+        const month = dateSplit[1]
+        const year = dateSplit[0]
+        return `${day}/${month}/${year}`
     }
 }
