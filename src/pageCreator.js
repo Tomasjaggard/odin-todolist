@@ -222,9 +222,22 @@ const projectSorter = () => {
     })
 }
 
+const newProject = () =>{
+    const addButton = document.createElement('button')
+    addButton.classList.add('project-item', 'add-project-button')
+    addButton.textContent = 'Add new Project'
+    addButton.addEventListener('click', () =>{
+        const projectName = prompt('Enter new Project name')
+        todoList.addProject(new Project(projectName))
+        console.log(todoList.projects)
+        createContent() //maybe redundant
+    })
+    return addButton
+}
 
 const createProjectList = () =>{
     const projectList = document.getElementById('project-list')
+    projectList.innerHTML = ''
     todoList.projects.forEach(project => {
         const projectItem = document.createElement('button')
         projectItem.classList.add('project-item');
@@ -238,10 +251,12 @@ const createProjectList = () =>{
         projectItem.appendChild(projectTitle)
         projectList.appendChild(projectItem)
     })
+    projectList.appendChild(newProject())
 };
 
 
 const createContent = () =>{
+    createProjectList()
     projectSorter()
     const content = document.getElementById('content')
     content.innerHTML = ''
@@ -254,7 +269,6 @@ const createContent = () =>{
 }
 
 const initPage = () =>{
-    createProjectList()
     createContent()
 }
 

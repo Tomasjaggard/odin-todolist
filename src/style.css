@@ -8,7 +8,8 @@
     --footer-color: #334155;
     --confirm-button: #a7f3d0;
     --cancel-button: #fecaca;
-    --confirm-button-active: #4ade80;
+    --confirm-button-hover: #047857;
+    --confirm-button-active: #065f46;
     --cancel-button-active: #f87171;
 }
 
@@ -51,6 +52,7 @@ main{
     width: 100%;
 }
 
+
 .project-list{
     display: flex;
     flex-direction: column;
@@ -68,6 +70,18 @@ main{
     padding: 5px;
     border: none;
     background-color: var(--accent-color);
+}
+
+.project-list .add-project-button{
+    background-color: var(--confirm-button);
+}
+
+.project-list .add-project-button:hover{
+    background-color: var(--confirm-button-hover);
+}
+
+.project-list .add-project-button:active{
+    background-color: var(--confirm-button-active);
 }
 
 .content{
