@@ -1,3 +1,5 @@
+import {toDate,isToday, isThisWeek, parseISO} from 'date-fns'
+
 export default class Project{
     constructor(name){
         this.name = name
@@ -12,6 +14,14 @@ export default class Project{
         return this.name
     }
 
+    setTasks(tasks){
+        this.tasks = tasks
+    }
+
+    getTasks(){
+        return this.tasks
+    }
+
     addTask(newTask){
         if (this.tasks.find((task) => task.getName() === newTask.name)) return
         this.tasks.push(newTask)
@@ -22,14 +32,22 @@ export default class Project{
     }
 
     getTask(taskName){
-        return this.tasks.some((task) => task.getName() === taskName)
+        return this.tasks.find((task) => task.getName() === taskName)
     }
 
     getTasksToday(){
-        // pending
+        return this.tasks.filter((task) => {
+            const taskDate = task.getDate()
+            if(taskDate == null) return
+            return isToday(toDate(taskDate))
+        })
     }
 
     getTasksThisWeek(){
-        // pending
+        return this.tasks.filter((task) => {
+            const taskDate = task.getDate()
+            if(taskDate == null) return
+            return isThisWeek(toDate(taskDate))
+        })
     }
 }
