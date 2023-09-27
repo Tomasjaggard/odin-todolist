@@ -2,6 +2,7 @@ import Todolist from "./todolist"
 import Project from "./project"
 import Task from "./task"
 
+
 export default class Storage{
     static saveTodolist(data){
         localStorage.setItem('todoList', JSON.stringify(data))
@@ -28,7 +29,7 @@ export default class Storage{
                 if(task.getDate() == null) return
                 task.setDate(new Date(task.getDate()))
             }))
-            
+
         return todoList
     }
 
@@ -44,22 +45,22 @@ export default class Storage{
         Storage.saveTodolist(todoList)
     }
 
-    static addTask(project, task){
+    static addTask(projectName, taskName){
         const todoList = Storage.getTodoList()
-        todoList.getProject(project).addTask(task)
+        todoList.getProject(projectName).addTask(taskName)
         Storage.saveTodolist(todoList)
         
     }
 
-    static removeTask(project, task){
+    static removeTask(projectName, taskName){
         const todoList = Storage.getTodoList()
-        todoList.getProject(project).removeTask(task)
+        todoList.getProject(projectName).removeTask(taskName)
         Storage.saveTodolist(todoList)
     }
     
-    static setDueDate(project, task, date){
+    static setDueDate(projectName, taskName, date){
         const todoList = Storage.getTodoList()
-        todoList.getProject(project).getTask(task).setDate(date)
+        todoList.getProject(projectName).getTask(taskName).setDate(date)
         Storage.saveTodolist(todoList)
     }
 }
