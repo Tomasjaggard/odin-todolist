@@ -1,26 +1,11 @@
 import Project from "./modules/project"
 import Task from "./modules/task"
 import Todolist from "./modules/todolist"
+import Storage from "./modules/storage"
 
-const todoList = new Todolist
+let todoList = new Todolist
 const inbox = todoList.getProject('Inbox')
 let currentProject = inbox
-
-//need inbox, today, this week
-//inbox is all unsorted tasks
-//today is all tasks which have a deadline which is the current day
-//this week is all tasks which have a deadline current day + 7
-
-//div task //to append onto content
-
-//task class
-//Task(title, description, dueDate, priority)
-//if no dueDate provided, set to None
-
-//project class
-//Project.addTask()
-
-//pageTitle.textContent = projectTitle
 
 const addTaskForm = (taskItemInput,taskItemPrompt) => {
     taskItemInput.classList.toggle('active')
@@ -71,29 +56,33 @@ const addTaskForm = (taskItemInput,taskItemPrompt) => {
     taskDataSubmit.classList.add('add-task-submit')
     taskDataSubmit.setAttribute('id', 'add-task-submit')
     taskDataSubmit.textContent = 'Add'
-    taskDataSubmit.addEventListener('click', () => {
-        const _taskName = taskName.value
-        if(_taskName === '') return
-        if(currentProject.getTask(_taskName)) return
-
-        let _taskDate = taskDate.value
-        if(!_taskDate){
-            _taskDate = 'None'
-        } else{
-            _taskDate = new Date(taskDate.valueAsDate)
+    taskItemInput.addEventListener('click', (event) => {
+        if(event.target.classList.contains('add-task-submit')){
+            const _taskName = taskName.value
+            if(_taskName === '') return
+            if(currentProject.getTask(_taskName)) return
+    
+            let _taskDate = taskDate.value
+            if(!_taskDate){
+                _taskDate =  null
+            } else{
+                _taskDate = new Date(taskDate.valueAsDate)
+            }
+            const newTask = new Task(_taskName, 'Test Description', _taskDate, taskPriority.value)
+            Storage.addTask(currentProject.getName(),newTask)
+            console.log('added task')
+            //currently Storage.addTask takes too long so createContent does not instantly move tasks to Today/This Week. Need await
+            createContent()
+        } else if (event.target.classList.contains('add-task-cancel')){
+            taskItemInput.classList.toggle('active')
+            taskItemPrompt.classList.toggle('active')
         }
-        currentProject.addTask(new Task(_taskName, 'Test Description', _taskDate, taskPriority.value))
-        createContent()
     })
 
     const taskDataCancel = document.createElement('button')
     taskDataCancel.classList.add('add-task-cancel')
     taskDataCancel.setAttribute('id', 'add-task-cancel')
     taskDataCancel.textContent = 'Cancel'
-    taskDataCancel.addEventListener('click', () => {
-        taskItemInput.classList.toggle('active')
-        taskItemPrompt.classList.toggle('active')
-    })
     taskItemInput.appendChild(dataGroup)
     buttonContainer.appendChild(taskDataSubmit)
     buttonContainer.appendChild(taskDataCancel)
@@ -151,7 +140,7 @@ const createTask = (task) => {
     completedIcon.classList.add('fa-regular', 'fa-circle-check');
     completedIcon.style.color = '#000000';
     completedButton.addEventListener("click", () => {
-        currentProject.removeTask(task.getName())
+        Storage.removeTask(currentProject.getName(),task.getName())
         createContent()
     })
     completedButton.appendChild(completedIcon)
@@ -160,12 +149,13 @@ const createTask = (task) => {
     buttonNameGroup.appendChild(taskName)
     
     taskItem.appendChild(buttonNameGroup)
-    if(task.getDate() == "None"){
+    if(task.getDate() == null){
         const taskDate = document.createElement('input')
         taskDate.setAttribute('type', 'date')
         taskItem.appendChild(taskDate)
         taskDate.addEventListener('blur', () => {
             task.setDate(new Date(taskDate.valueAsDate))
+            Storage.setDueDate(currentProject.getName(),task.getName(),task.getDate())
             taskItem.replaceChild(createDate(task), taskDate)
             task.getDate()
             createContent()
@@ -183,12 +173,13 @@ const createDate = (task) => {
 }
 
 const taskList = () =>{
-    if (currentProject.tasks.length === 0){
+    if (todoList.getProject(currentProject.getName()).getTasks().length === 0){
+        console.log('Returned empty')
         return addTaskItem();
     } else {
         const taskItemsList = document.createElement('div')
         taskItemsList.classList.add('task-items-list')
-        currentProject.tasks.forEach(task => {
+        todoList.getProject(currentProject.getName()).getTasks().forEach(task => {
             const taskItem = createTask(task)
             taskItemsList.appendChild(taskItem)
         });
@@ -200,22 +191,20 @@ const taskList = () =>{
 const projectSorter = () => {
     const todayProject = todoList.getProject('Today')
     const thisWeekProject = todoList.getProject('This week')
-    todoList.projects.forEach(project => {
-        console.log(project.getName())
-        console.log(project.tasks)
+
+    todoList.getProjects().forEach(project => {
         const thisDayTasks = project.getTasksToday()
         const thisWeekTasks = project.getTasksThisWeek()
         project.tasks.forEach(task => {
-            console.log(task)
             if(thisDayTasks.includes(task) && thisWeekTasks.includes(task)){
                 thisDayTasks.forEach(item => {
-                    project.removeTask(item.getName())
-                    todayProject.addTask(item)
+                    Storage.removeTask(project.getName(), item.getName())
+                    Storage.addTask(todayProject.getName(), item)
                 });
             } else if (thisWeekTasks.includes(task)){
                 thisWeekTasks.forEach(item => {
-                    project.removeTask(item.getName())
-                    thisWeekProject.addTask(item)
+                    Storage.removeTask(project.getName(), item.getName())
+                    Storage.addTask(thisWeekProject.getName(), item)
                 });
             }
         });
@@ -228,9 +217,10 @@ const newProject = () =>{
     addButton.textContent = 'Add new Project'
     addButton.addEventListener('click', () =>{
         const projectName = prompt('Enter new Project name')
-        todoList.addProject(new Project(projectName))
-        console.log(todoList.projects)
-        createContent() //maybe redundant
+        // todoList.addProject(new Project(projectName))
+        Storage.addProject(new Project(projectName))
+        //currently Storage.addTask takes too long so createContent does not instantly move tasks to Today/This Week. Need await
+        createContent()
     })
     return addButton
 }
@@ -238,6 +228,7 @@ const newProject = () =>{
 const createProjectList = () =>{
     const projectList = document.getElementById('project-list')
     projectList.innerHTML = ''
+    console.log(todoList.projects)
     todoList.projects.forEach(project => {
         const projectItem = document.createElement('button')
         projectItem.classList.add('project-item');
@@ -256,8 +247,13 @@ const createProjectList = () =>{
 
 
 const createContent = () =>{
+    if(localStorage.getItem("todoList") !== null){
+        console.log('retrieved list')
+        todoList = Storage.getTodoList()
+    }
     createProjectList()
     projectSorter()
+    
     const content = document.getElementById('content')
     content.innerHTML = ''
     const title = document.createElement('h2')
