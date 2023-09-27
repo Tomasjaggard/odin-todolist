@@ -4,8 +4,6 @@ import Task from "./task"
 
 export default class Storage{
     static saveTodolist(data){
-        console.log('Save data')
-        console.log(data)
         localStorage.setItem('todoList', JSON.stringify(data))
     }
 
@@ -27,9 +25,10 @@ export default class Storage{
 
         todoList.getProjects()
             .forEach((project) => project.getTasks().forEach((task) => {
+                if(task.getDate() == null) return
                 task.setDate(new Date(task.getDate()))
             }))
-        
+            
         return todoList
     }
 
