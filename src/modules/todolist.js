@@ -9,8 +9,16 @@ export default class Todolist{
     }
 
 
-    getProjectName(projectName){
+    getProject(projectName){
         return this.projects.find((project) => project.getName() === projectName);
+    }
+
+    setProjects(projects) {
+        this.projects = projects
+    }
+
+    getProjects(){
+        return this.projects
     }
 
     addProject(newProject){
@@ -19,6 +27,6 @@ export default class Todolist{
     }
 
     deleteProject(projectName){
-        this.projects.filter((project) => project !== projectName)
+        this.projects = this.projects.filter((project) => project !== projectName)
     }
 }
